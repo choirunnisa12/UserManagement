@@ -28,6 +28,11 @@ public class UserController {
     public User getById(@PathVariable long id){
         return userService.getById(id);
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<User>>searchUsers(@RequestParam String name){
+        List<User> users = userService.searchByName(name);
+        return ResponseEntity.ok(users);
+    }
     @PutMapping(path = "/{id}")
     public User update(@PathVariable User request){
         return userService.update(request);
