@@ -4,6 +4,9 @@ import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.repository.UserRepository;
 import com.example.UserManagementt.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +23,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public Page<User> getAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        return userRepository.findAll(pageable);
     }
 
     @Override
