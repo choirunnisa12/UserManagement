@@ -4,6 +4,8 @@ import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.repository.UserRepository;
 import com.example.UserManagementt.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(pageable);
     }
 
+    @Cacheable(value = "users", key = "#id")
     @Override
     public User getById(long id) {
         Optional<User>user = userRepository.findById(id);
@@ -40,6 +43,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(request);
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Override
     public void delete(long id) {
         this.getById(id);
