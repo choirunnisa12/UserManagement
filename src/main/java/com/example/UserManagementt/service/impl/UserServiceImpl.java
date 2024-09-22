@@ -45,4 +45,9 @@ public class UserServiceImpl implements UserService {
         this.getById(id);
         userRepository.deleteById(id);
     }
+
+    @Override
+    public List<User> searchByName(String name) {
+        return userRepository.findByNameContaining(name);
+    }
 }
