@@ -34,6 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getById(long id) {
         Optional<User>user = userRepository.findById(id);
+        System.out.println("Fetching product from database...");
         return user.orElse(null);
     }
 
