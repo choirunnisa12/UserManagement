@@ -4,9 +4,8 @@ import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.repository.UserRepository;
 import com.example.UserManagementt.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +28,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getById(long id) {
         Optional<User>user = userRepository.findById(id);
+        System.out.println("Fetching product from database...");
         return user.orElse(null);
     }
 
@@ -38,12 +38,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(request);
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Override
     public void delete(long id) {
         this.getById(id);
         userRepository.deleteById(id);
     }
     @Override
+    @Cacheable(value = "users", key = "#id")
     public Page<User> getAll(int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()
