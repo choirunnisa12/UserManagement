@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
     User create(User request);
-    Page<User> getAll(int page, int size);
+    Page<User> getAll(int page, int size, String sortBy, String direction);
     User getById(long id);
     User update(User request);
     void delete(long id);

@@ -22,7 +22,6 @@ public class UserController {
         User saveUser = userService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
     }
-
     @GetMapping(path = "/{id}")
     public ResponseEntity<User> getById(@PathVariable long id) {
         User user = userService.getById(id);
@@ -32,27 +31,27 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/search")
-    public ResponseEntity<List<User>>searchUsers(@RequestParam String name){
-        List<User> users = userService.searchByName(name);
-        return ResponseEntity.ok(users);
+    @PutMapping(path = "/{id}")
+    public User update(@PathVariable User request){
+        return userService.update(request);
     }
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    @PutMapping(path = "/{id}")
-    public User update(@PathVariable User request){
-        return userService.update(request);
-    }
     @GetMapping
     public ResponseEntity<Page<User>> getAll(
             @RequestParam(defaultValue = "0")int page,
-            @RequestParam(defaultValue = "10")int size){
-        Page<User> users = userService.getAll(page,size);
-            return ResponseEntity.ok(users);
-
+            @RequestParam(defaultValue = "10")int size,
+            @RequestParam(defaultValue = "id")String sortBy,
+            @RequestParam(defaultValue = "asc")String direction){
+        Page<User> users = userService.getAll(page, size, sortBy, direction);
+                return ResponseEntity.ok(users);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<List<User>>searchUsers(@RequestParam String name){
+        List<User> users = userService.searchByName(name);
+        return ResponseEntity.ok(users);
     }
 }

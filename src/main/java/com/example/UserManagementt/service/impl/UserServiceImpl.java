@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +24,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User create(User request) {
         return userRepository.saveAndFlush(request);
-    }
-
-    @Override
-    public Page<User> getAll(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size);
-        return userRepository.findAll(pageable);
     }
 
     @Override
@@ -44,6 +42,14 @@ public class UserServiceImpl implements UserService {
     public void delete(long id) {
         this.getById(id);
         userRepository.deleteById(id);
+    }
+    @Override
+    public Page<User> getAll(int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userRepository.findAll(pageable);
     }
 
     @Override
