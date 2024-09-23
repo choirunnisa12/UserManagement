@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User request) {
+    public User update( long id, User request) {
         this.getById(request.getId());
         return userRepository.save(request);
     }
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
     @Override
-    @Cacheable(value = "users", key = "#id")
+    @Cacheable(value = "users", key = "#page + '-' + #size + '-' + #sortBy + '-' + #direction")
     public Page<User> getAll(int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name())
                 ? Sort.by(sortBy).ascending()

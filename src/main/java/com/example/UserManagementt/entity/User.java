@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
@@ -18,17 +19,21 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table(name = "users")
 @Builder
-public class User {
+public class User implements Serializable {
+    private static  final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     @Column(name = "name")
     @NotNull(message = "Name cannot be null")
     @Size(min = 2, message = "Name should have 2 characters")
     private String name;
+
     @Email(message = "Email should be valid")
     @Column(name = "email", unique = true)
     private String email;
+
     @Column(name = "birthDate")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;

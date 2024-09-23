@@ -4,7 +4,6 @@ import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -38,8 +37,9 @@ public class UserController {
         }
     }
     @PutMapping(path = "/{id}")
-    public User update(@PathVariable User request){
-        return userService.update(request);
+    public ResponseEntity<User> update(@PathVariable long id, @Valid @RequestBody User request){
+        User updateUser = userService.update(id,request);
+        return ResponseEntity.ok(updateUser);
     }
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
@@ -52,6 +52,7 @@ public class UserController {
             @RequestParam(defaultValue = "10")int size,
             @RequestParam(defaultValue = "id")String sortBy,
             @RequestParam(defaultValue = "asc")String direction){
+
         Page<User> users = userService.getAll(page, size, sortBy, direction);
                 return ResponseEntity.ok(users);
     }

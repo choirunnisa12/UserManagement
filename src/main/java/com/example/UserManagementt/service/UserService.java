@@ -9,7 +9,7 @@ public interface UserService {
     User create(User request);
     Page<User> getAll(int page, int size, String sortBy, String direction);
     User getById(long id);
-    User update(User request);
+    User update(long id, User request);
     void delete(long id);
     List<User>searchByName(String name);
 }
