@@ -26,6 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User request) {
+        logger.info("Creating user: {}", request.getName());
         return userRepository.save(request);
     }
 
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(long id, User request) {
+        logger.info("updating user with id: {}", id);
         User existingUser = getById(id);
         existingUser.setName(request.getName());
         existingUser.setEmail(request.getEmail());
@@ -49,6 +51,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "users", key = "#id")
     @Override
     public void delete(long id) {
+        logger.info("Deleting user with id: {}", id);
         User existingUser = getById(id);
         userRepository.deleteById(existingUser.getId());
         logger.info("User with id: {} has been deleted", id);
@@ -64,6 +67,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> searchByName(String name) {
+        logger.info("search by name : {}"+ name);
         return userRepository.findByNameContaining(name);
     }
 }
