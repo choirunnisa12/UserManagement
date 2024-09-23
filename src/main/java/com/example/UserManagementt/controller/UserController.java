@@ -2,6 +2,7 @@ package com.example.UserManagementt.controller;
 
 import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.service.UserService;
+import com.example.UserManagementt.service.impl.RateLimiterService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -17,16 +18,29 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private UserService userService;
+    private RateLimiterService rateLimiterService;
 
+    @GetMapping("/resource")
+    public ResponseEntity<String> getResource() {
+        if (rateLimiterService.isRateLimited()) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Too many requests");
+        }
+        return ResponseEntity.ok("Resource content");
+    }
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody User request, BindingResult result) {
-        if (result.hasErrors()){
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
         }
+        try {
+            User saveUser = userService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user");
 
-        User saveUser = userService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
+        }
     }
+
     @GetMapping(path = "/{id}")
     public ResponseEntity<User> getById(@PathVariable long id) {
         User user = userService.getById(id);
@@ -39,13 +53,22 @@ public class UserController {
     @PutMapping(path = "/{id}")
     public ResponseEntity<User> update(@PathVariable long id, @Valid @RequestBody User request){
         User updateUser = userService.update(id,request);
-        return ResponseEntity.ok(updateUser);
+        if (updateUser != null){
+            return ResponseEntity.ok(updateUser);
+        }else {
+            return ResponseEntity.notFound().build();
+        }
     }
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
-        userService.delete(id);
-        return ResponseEntity.noContent().build();
+        if (userService.getById(id) != null){
+            userService.delete(id);
+            return ResponseEntity.noContent().build();
+        }else {
+            return ResponseEntity.noContent().build();
+        }
     }
+
     @GetMapping
     public ResponseEntity<Page<User>> getAll(
             @RequestParam(defaultValue = "0")int page,
