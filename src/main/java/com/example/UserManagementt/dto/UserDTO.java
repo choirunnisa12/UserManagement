@@ -1,18 +1,15 @@
 package com.example.UserManagementt.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.time.LocalDate;
 
+@NoArgsConstructor
+@AllArgsConstructor
     @Data
     public class UserDTO{
         @NotBlank(message = "Name is required")
