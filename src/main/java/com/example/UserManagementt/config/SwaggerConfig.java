@@ -30,9 +30,9 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("API documentation for User Management System")
                         .contact(new Contact()
-                                .name("Dev-Team")
-                                .email("dev-team@gmail.com")
-                                .url("https://dev-team.com")
+                                .name("Choirunnisa")
+                                .email("choirunnisaa32@gmail.com")
+                                .url("https://choirunnisa12.github.io/portfolio/")
                         )
                 )
                 .servers(List.of(

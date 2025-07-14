@@ -26,9 +26,8 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name")
     @NotBlank(message = "Name cannot be null")
-    @Size(min = 2, message = "Name should have 2 characters")
+    @Size(min = 3, message = "Name should have 3 characters", max = 50)
     private String name;
 
     @Email(message = "Email should be valid")
