@@ -1,5 +1,7 @@
 package com.example.UserManagementt.service.impl;
 
+import com.example.UserManagementt.dto.UserDTO;
+import com.example.UserManagementt.dto.UserResponseDto;
 import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.exception.UserNotFoundException;
 import com.example.UserManagementt.repository.UserRepository;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,49 +30,72 @@ public class UserServiceImpl implements UserService {
 
     @Async
     @Override
-    public User create(User request) {
+    public UserResponseDto create(UserDTO request) {
         logger.info("Creating user: {}", request.getName());
-        return userRepository.save(request);
+        User user = mapToEntity(request);
+        User savedUser = userRepository.save(user);
+        return mapToResponseDto(savedUser);
     }
 
     @Override
-    public User getById(long id) {
+    public UserResponseDto getById(long id) {
         logger.info("Fetching user from database with id: {}", id);
-        return userRepository.findById(id)
+        User user =  userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " is not found"));
+    return mapToResponseDto(user);
     }
 
     @Override
-    public User update(long id, User request) {
+    public UserResponseDto update(long id, UserDTO request) {
         logger.info("updating user with id: {}", id);
-        User existingUser = getById(id);
-        existingUser.setName(request.getName());
-        existingUser.setEmail(request.getEmail());
-        existingUser.setBirthDate(request.getBirthDate());
-        existingUser.setPassword(request.getPassword());
-        return userRepository.save(existingUser);
+        User user = userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException("User with id " + id + " is not found"));
+        return mapToResponseDto(user);
     }
 
     @CacheEvict(value = "users", key = "#id")
     @Override
     public void delete(long id) {
         logger.info("Deleting user with id: {}", id);
-        User existingUser = getById(id);
+        User existingUser = userRepository.findById(id)
+                        .orElseThrow(()-> new  UserNotFoundException("User with id " + id + "is not found"));
         userRepository.deleteById(existingUser.getId());
         logger.info("User with id: {} has been deleted", id);
     }
 
     @Override
     @Cacheable(value = "users", key = "#page + '-' + #size + '-' + #sortBy + '-' + #direction")
-    public Page<User> getAll(int page, int size, String sortBy, String direction) {
+    public Page<UserResponseDto> getAll(int page, int size, String sortBy, String direction) {
         Sort sort = Sort.by("ASC".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return userRepository.findAll(pageable);
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(this::mapToResponseDto);
     }
 
     @Override
-    public List<User> searchByName(String name) {
+    public List<UserResponseDto> searchByName(String name) {
         logger.info("search by name : {}"+ name);
-        return userRepository.findByNameContaining(name);
+        List<User> users = userRepository.findByNameContaining(name);
+        return users.stream()
+                .map(this::mapToResponseDto)
+                .toList();
+    }
+
+    private User mapToEntity(UserDTO dto){
+        return User.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .birthDate(LocalDate.parse(dto.getBirthDate()))
+                .password(dto.getPassword())
+                .build();
+    }
+
+    private UserResponseDto mapToResponseDto(User user){
+        UserResponseDto dto = new UserResponseDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setBirthDate(user.getBirthDate().toString());
+        return dto;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.UserManagementt.controller;
 
+import com.example.UserManagementt.dto.UserDTO;
+import com.example.UserManagementt.dto.UserResponseDto;
 import com.example.UserManagementt.entity.User;
 import com.example.UserManagementt.service.UserService;
 import com.example.UserManagementt.service.impl.RateLimiterService;
@@ -35,74 +37,75 @@ public class UserController {
 
     @Async
     @PostMapping
-    public CompletableFuture<ResponseEntity<?>> create(@Valid @RequestBody User request, BindingResult result) {
-        return CompletableFuture.supplyAsync(()-> {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(result.getAllErrors());
-        }
+    public CompletableFuture<ResponseEntity<?>> create(@Valid @RequestBody UserDTO request) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                UserResponseDto savedUser = userService.create(request);
+                return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user: " + e.getMessage());
+            }
+        });
+    }
+
+
+    @Async
+    @GetMapping(path = "/{id}")
+    public CompletableFuture<ResponseEntity<UserResponseDto>> getById(@PathVariable long id) {
+       return CompletableFuture.supplyAsync(()-> {
         try {
-            User saveUser = userService.create(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saveUser);
-        }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user");
+            UserResponseDto user = userService.getById(id);
+            return ResponseEntity.ok(user);
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }});
+    }
+
+    @Async
+    @PutMapping(path = "/{id}")
+    public CompletableFuture<ResponseEntity<UserResponseDto>> update(@PathVariable long id, @Valid @RequestBody UserDTO request) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                UserResponseDto updateUser = userService.update(id, request);
+                return ResponseEntity.ok(updateUser);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        });
+    }
+
+    @Async
+    @DeleteMapping(path = "/{id}")
+    public CompletableFuture<ResponseEntity<Void>> delete(@PathVariable long id) {
+        return CompletableFuture.supplyAsync(()->{
+        try {
+            userService.delete(id);
+            return ResponseEntity.noContent().build();
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
         }
         });
     }
 
     @Async
-    @GetMapping(path = "/{id}")
-    public CompletableFuture<ResponseEntity<User>> getById(@PathVariable long id) {
-       return CompletableFuture.supplyAsync(()-> {
-        User user = userService.getById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.notFound().build();
-        }});
-    }
-    @Async
-    @PutMapping(path = "/{id}")
-    public CompletableFuture<ResponseEntity<User>> update(@PathVariable long id, @Valid @RequestBody User request){
-       return CompletableFuture.supplyAsync(() -> {
-           User updateUser = userService.update(id, request);
-           if (updateUser != null) {
-               return ResponseEntity.ok(updateUser);
-           } else {
-               return ResponseEntity.notFound().build();
-           }
-       });
-    }
-    @Async
-    @DeleteMapping(path = "/{id}")
-    public CompletableFuture<ResponseEntity<?>> delete(@PathVariable long id) {
-        return CompletableFuture.supplyAsync(()->{
-        if (userService.getById(id) != null){
-            userService.delete(id);
-            return ResponseEntity.noContent().build();
-        }else {
-            return ResponseEntity.noContent().build();
-        }});
-    }
-
-    @Async
     @GetMapping
-    public CompletableFuture<ResponseEntity<Page<User>>> getAll(
+    public CompletableFuture<ResponseEntity<Page<UserResponseDto>>> getAll(
             @RequestParam(defaultValue = "0")int page,
             @RequestParam(defaultValue = "10")int size,
             @RequestParam(defaultValue = "id")String sortBy,
             @RequestParam(defaultValue = "asc")String direction) {
 
         return CompletableFuture.supplyAsync(() -> {
-            Page<User> users = userService.getAll(page, size, sortBy, direction);
+            Page<UserResponseDto> users = userService.getAll(page, size, sortBy, direction);
             return ResponseEntity.ok(users);
         });
     }
 
     @Async
     @GetMapping("/search")
-    public CompletableFuture<ResponseEntity<List<User>>>searchUsers(@RequestParam String name){
+    public CompletableFuture<ResponseEntity<List<UserResponseDto>>>searchUsers(@RequestParam String name){
        return CompletableFuture.supplyAsync(()->{
-        List<User> users = userService.searchByName(name);
+        List<UserResponseDto> users = userService.searchByName(name);
         return ResponseEntity.ok(users);
     });
     }

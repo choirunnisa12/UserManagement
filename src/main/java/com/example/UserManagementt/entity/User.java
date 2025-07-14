@@ -26,21 +26,17 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Name cannot be null")
-    @Size(min = 3, message = "Name should have 3 characters", max = 50)
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Email(message = "Email should be valid")
-    @NotBlank(message = "email is mandatory")
-    @Column(name = "email", unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "birthDate")
-    @NotBlank(message = "you have to fill your birthdate  ")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
-    @NotBlank(message = "password is mandatory")
+    @Column(nullable = false)
     private String password;
 
 }
