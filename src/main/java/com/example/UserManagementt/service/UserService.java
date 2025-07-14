@@ -1,7 +1,6 @@
 package com.example.UserManagementt.service;
 
-import com.example.UserManagementt.dto.UserDTO;
-import com.example.UserManagementt.dto.UserResponseDto;
+import com.example.UserManagementt.dto.*;
 import com.example.UserManagementt.entity.User;
 import org.springframework.data.domain.Page;
 
@@ -14,4 +13,5 @@ public interface UserService {
     UserResponseDto update(long id, UserDTO request);
     void delete(long id);
     List<UserResponseDto>searchByName(String name);
+
 }
