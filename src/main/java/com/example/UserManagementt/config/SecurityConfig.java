@@ -31,8 +31,14 @@ public class SecurityConfig {
         httpSecurity.csrf().disable() //crsf turn off because using token
                 .authorizeHttpRequests(auth -> auth
                         //endpoint can access without login
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        //other endpoint must be using token jwt
+                            .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/v3/api-docs/**"
+                            ).permitAll()                        //other endpoint must be using token jwt
                         .anyRequest().authenticated()
                 )
                 //set without session(stateless)
