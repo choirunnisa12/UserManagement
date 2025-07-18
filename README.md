@@ -1,111 +1,186 @@
-# User Management Application
+# User Management System
 
-This is a User Management REST API built with Spring Boot, JWT, Caching, pagination, sorting and basic CRUD operations.  
+A Spring Boot REST API for user management, featuring JWT authentication, paging, sorting, validation, caching, async operations, Swagger documentation, and MySQL.
+
+## Table of Contents
+
+- Features
+- Tech Stack
+- Prerequisites
+- Getting Started
+- API Endpoints
+- Project Structure
+- Testing
+- Contributing
 
 ## Features
 
-- Register and log in users securely (JWT authentication)
-- Passwords are safely hashed
-- Manage users: create, read, update, and delete
-- Consistent error handling with clear messages
-- Interactive API documentation (Swagger)
-- Ready for containerization with Docker
+- **Authentication:** JWT-based login and registration
+- **User Management:** CRUD operations for users (create, read, update, delete)
+- **Search & Paging:** Search users by name, paging, and sorting support
+- **Validation:** Input validation for registration and user data
+- **Rate Limiting:** Basic rate limiting endpoint example
+- **Caching:** User list caching for performance
+- **Async:** Asynchronous endpoints for better scalability
+- **API Documentation:** Swagger UI for easy API exploration
+- **Testing:** Unit and integration tests
 
 ## Tech Stack
 
-- Java 17+
-- Spring Boot & Spring Security
-- JWT (JSON Web Token)
+- Java 17+ (or newer)
+- Spring Boot
+- Spring Security (JWT)
+- Spring Data JPA
+- MySQL
+- Lombok
+- Swagger/OpenAPI
 - Maven
-- H2 Database (for development/testing)
-- Swagger (OpenAPI)
-- Docker
+
+## Prerequisites
+
+- Java 17 or newer
+- Maven 3.6+
+- MySQL 8.0+
+- Git
 
 ## Getting Started
 
-### Prerequisites
-
-- Java 17 or newer
-- Maven
-- (Optional) Docker
-
-### How to Run Locally
-
-1. **Clone the repository:**
+1. **Clone and Setup**
    ```bash
-   git clone https://github.com/yourusername/UserManagementt.git
+   git clone https://github.com/choirunnisa12/UserManagement.git
    cd UserManagementt
    ```
 
-2. **Build and start the application:**
+2. **Database Setup**
+   - Create the database:
+     ```sql
+     CREATE DATABASE usermanagement;
+     ```
+   - Update `src/main/resources/application.properties`:
+     ```properties
+     spring.datasource.username=your_username
+     spring.datasource.password=your_password
+     spring.datasource.url=jdbc:mysql://localhost:3306/usermanagement
+     ```
+
+3. **Build and Run**
    ```bash
-   ./mvnw clean install
-   ./mvnw spring-boot:run
+   mvn clean install
+   mvn spring-boot:run
    ```
+   The app will run at http://localhost:8080
 
-   The API will be available at [http://localhost:8080](http://localhost:8080).
+## API Endpoints
 
-### Run with Docker
+- **Swagger UI:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
-1. **Build the Docker image:**
-   ```bash
-   docker build -t user-management-app .
-   ```
+### Auth
 
-2. **Run the container:**
-   ```bash
-   docker run -p 8080:8080 user-management-app
-   ```
+- `POST /auth/register` — Register a new user
+- `POST /auth/login` — Login and get JWT token
 
-### API Documentation
+### Users
 
-You can explore and test the API using Swagger UI:  
-[http://localhost:8080/swagger-ui/](http://localhost:8080/swagger-ui/)
+- `GET /users` — List users (with paging/sorting)
+- `GET /users/{id}` — Get user by ID
+- `POST /users` — Create user
+- `PUT /users/{id}` — Update user
+- `DELETE /users/{id}` — Delete user
+- `GET /users/search?name=...` — Search users by name
 
-### Example Endpoints
+### Example: Register
 
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Log in and receive a JWT token
-- `GET /api/users` — List all users (requires authentication)
-- `GET /api/users/{id}` — Get user details by ID
-- `PUT /api/users/{id}` — Update user information
-- `DELETE /api/users/{id}` — Delete a user
+**Request:**
+```json
+POST /auth/register
+{
+  "name": "Amisha",
+  "email": "amisha@email.com",
+  "password": "amisha123",
+  "birthDate": "2000-01-01"
+}
+```
 
-### Running Tests
+**Validation Error Response:**
+```json
+{
+  "errors": [
+    "Name must be between 3-50 characters",
+    "Email should be valid",
+    "Password must be at least 6 characters"
+  ]
+}
+```
 
-To run all tests:
-```bash
-./mvnw test
+### Example: Login
+
+**Request:**
+```json
+POST /auth/login
+{
+  "email": "amisha@email.com",
+  "password": "amisha123"
+}
+```
+
+**Response:**
+```json
+{
+  "token": "jwt-token-string",
+  "message": "Login Successful"
+}
 ```
 
 ## Project Structure
 
 ```
-src/main/java/com/example/UserManagementt/
-  ├── config/         # Security and Swagger configuration
-  ├── controller/     # REST controllers
-  ├── dto/            # Data Transfer Objects
-  ├── entity/         # JPA entities
-  ├── exception/      # Custom exceptions and handlers
-  ├── repository/     # Spring Data repositories
-  ├── security/       # JWT utilities and filters
-  ├── service/        # Service interfaces and implementations
+src/main/java/com/example/UserManagementt
+├── UserManagementtApplication.java
+├── config/
+│   ├── SecurityConfig.java
+│   └── SwaggerConfig.java
+├── controller/
+│   ├── AuthController.java
+│   └── UserController.java
+├── dto/
+│   ├── LoginRequest.java
+│   ├── RegisterRequest.java
+│   ├── UserDTO.java
+│   ├── LoginResponse.java
+│   └── UserResponseDto.java
+├── entity/
+│   └── User.java
+├── exception/
+│   ├── GlobalException.java
+│   └── UserNotFoundException.java
+├── repository/
+│   └── UserRepository.java
+├── security/
+│   ├── JwtFilter.java
+│   └── JwtUtil.java
+└── service/
+    ├── AuthService.java
+    ├── UserService.java
+    └── impl/
+        ├── AuthServiceImpl.java
+        ├── UserServiceImpl.java
+        └── RateLimiterService.java
 ```
 
-## Deployment
+## Testing
 
-This application can be easily deployed to any cloud provider that supports Java or Docker (e.g., Heroku, Railway, AWS).  
-See the [Dockerfile](Dockerfile) for details.
+Run all tests:
+```bash
+mvn test
+```
+Includes:
+- Service layer unit tests
+- Authentication integration tests
+- Repository layer tests
 
-## About Me
+## Contributing
 
-Hi, my name is Choirunnisa.  
-I'm passionate about backend development and always eager to learn new technologies.  
-Feel free to connect with me:
-
-- [LinkedIn](https://www.linkedin.com/in/choirunnisa-choirunnisaa)
-- [GitHub](https://github.com/choirunnisa12)
-
----
-
-Thank you for checking out this project!
+1. Fork the repo
+2. Create a feature branch
+3. Make your changes (+ tests if needed)
+4. Submit a pull request

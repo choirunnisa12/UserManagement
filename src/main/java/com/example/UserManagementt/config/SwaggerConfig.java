@@ -25,6 +25,5 @@ public OpenAPI customOpenAPI() {
                             .url("@https://choirunnisa12.github.io/portfolio_choirunnisa/")
                     )
             );
-    // Jangan tambahkan .servers() di sini!
 }
 }
